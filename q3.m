@@ -29,7 +29,7 @@ for i = 1:num_steps
     obs_mean(:, i) = 90*ones(num_stations,1) - 10*eta*log10(norm_diff);
     Y(:, i)= obs_mean(:, i) + mvnrnd(mu_noise, std_noise,7,1);   
 end
-%load ('RSSI-measurements.mat');  % uncomment to run on given observation data
+load ('RSSI-measurements.mat');  % uncomment to run on given observation data
 
 %% Estimation of trajectory using the given observation
 tau = zeros(6, num_steps);
@@ -58,7 +58,7 @@ toc
 
 %% Plot the trajectory compared with ground truth trajectory 
 figure(1)
-plot(x1, x2, 'b-' );
+%plot(x1, x2, 'b-' );
 hold on;
 plot(tau(1,:), tau(4,:), 'r-');
 hold on;
@@ -73,14 +73,12 @@ title('n = 1')
 subplot(3,1,2)       
 histogram(log10(w(:,10)),[-350:10:0])
 title('n = 10')
-
+0.5
 subplot(3, 1, 3)       
 histogram(log10(w(:,50)),[-350:10:0])
 title('n = 50')
 
-%% Plot of non-zero w at each time steps. It degenerates after approx 50 time steps
+%% Plot of effective sample size at each time steps. It degenerates after approx 50 time steps
+
 figure(3)
-for pp =1:500
-    num(pp)=sum(w(:,pp)~=0);
-end
-plot(num(1:100));
+plot(eff_sample_size);

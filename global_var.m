@@ -33,7 +33,7 @@ sigma_w = eye(2)*0.5^2;
 
 num_part = 10000;
 
-num_steps = 500;
+num_steps = 501;
 
 obs_std = eye(7)*1.5^2;
 
