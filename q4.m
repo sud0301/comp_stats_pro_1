@@ -1,6 +1,7 @@
 clear all;
 global_var;
 
+%{
 %% generate sample trajectory using the motion model
 x0 = mvnrnd(mu_x0, sigma_x0); 
 z_index = randi(5,1);
@@ -29,7 +30,12 @@ for i = 1:num_steps
     obs_mean(:, i) = 90*ones(num_stations,1) - 10*eta*log10(norm_diff);
     Y(:, i)= obs_mean(:, i) + mvnrnd(mu_noise, std_noise,7,1);   
 end
-%load ('RSSI-measurements.mat');  % uncomment to run on given observation data
+
+plot(x1, x2, 'b-' );
+hold on;
+
+%}
+load ('RSSI-measurements.mat'); %observation data
 
 %% Estimation of trajectory using the given observation
 tau = zeros(6, num_steps);
@@ -47,9 +53,11 @@ tic
 for k = 2:num_steps, 
     part = generate_x(part); % generates the particles for next step
     obs_density_mean = generate_y_mean(part);  %generate mean for observation density 
-    w(:, k) = w_pdf( obs_density_mean', Y(:, k)'); % estimation of conditional density or w  for all particles
+    % estimation of conditional density or w  for all particles (NOT MULTIPLIED BY PREVIOUS WEIGHTS)
+    w(:, k) = w_pdf( obs_density_mean', Y(:, k)'); 
     sum_nw = sum(bsxfun(@times, part, w(:, k)'),2); 
     tau(:,k) = sum_nw/sum(w(:,k)); 
+    %Drawing randomly new particle with probability of normalized importance weights
     ind = randsample(num_part, num_part, true, w(:,k));
     part = part(:,ind);
     k
@@ -58,8 +66,6 @@ toc
 
 %% Plot the trajectory compared with ground truth trajectory 
 figure(1)
-plot(x1, x2, 'b-' );
-hold on;
 plot(tau(1,:), tau(4,:), 'r-');
 hold on;
 plot(stations(1,:), stations(2,:), '*');

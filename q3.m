@@ -1,6 +1,7 @@
 clear all;
 global_var;
 
+%{
 %% generate sample trajectory using the motion model
 x0 = mvnrnd(mu_x0, sigma_x0); 
 z_index = randi(5,1);
@@ -29,24 +30,28 @@ for i = 1:num_steps
     obs_mean(:, i) = 90*ones(num_stations,1) - 10*eta*log10(norm_diff);
     Y(:, i)= obs_mean(:, i) + mvnrnd(mu_noise, std_noise,7,1);   
 end
+plot(x1, x2, 'b-' );
+hold on;
+%}
+
 load ('RSSI-measurements.mat');  % uncomment to run on given observation data
 
 %% Estimation of trajectory using the given observation
 tau = zeros(6, num_steps);
 eff_sample_size = zeros(num_steps,1);
 
-w_pdf = @(mu, var) mvnpdf(var, mu, obs_std);
-part = mvnrnd(mu_x0, sigma_x0, num_part)'; 
-obs_density_mean = generate_y_mean(part);
+w_pdf = @(mu, var) mvnpdf(var, mu, obs_std); % function to sample from multivariate normal
+part = mvnrnd(mu_x0, sigma_x0, num_part)'; % generate particles for first time step
+obs_density_mean = generate_y_mean(part); % obs density distribution mean calculation
 
 w(:,1) = w_pdf(obs_density_mean', Y(:,1)'); %initialize w for time = 1
 eff_sample_size(1) = efficient_sample(w(:,1)); % call function to calculate eff sample size
 sum_w = sum(bsxfun(@times,part,w'),2);
-tau(:, 1) = sum_w/sum(w);
+tau(:, 1) = sum_w/sum(w); % calculation of first tau
 
 tic
 for k = 2:num_steps, 
-    part = generate_x(part); % generates the particles for next step
+    part = generate_x(part); % generates the particles for next step using motion model
     obs_density_mean = generate_y_mean(part); %generate mean for observation density 
     w(:, k) = w(:,k-1).*w_pdf( obs_density_mean', Y(:, k)'); % estimation of conditional density or w  for all particles
     sum_nw = sum(bsxfun(@times, part, w(:, k)'),2);
@@ -58,8 +63,7 @@ toc
 
 %% Plot the trajectory compared with ground truth trajectory 
 figure(1)
-%plot(x1, x2, 'b-' );
-hold on;
+
 plot(tau(1,:), tau(4,:), 'r-');
 hold on;
 plot(stations(1,:), stations(2,:), '*');
