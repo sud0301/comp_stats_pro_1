@@ -1,5 +1,6 @@
 %% This function generates the new particles position at next time step using the motion model 
-function [x_out] = generate_x( part)  
+function [x_out] = generate_x( part, alpha)  
+    [phi si_w si_z] = alpha_function(alpha);
     global_var;
     z0_index = randi(5, num_part, 1); 
     p = P(z0_index, :);

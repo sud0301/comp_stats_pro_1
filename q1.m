@@ -2,6 +2,9 @@
 
 clear all;
 global_var; % File Contains all the constants; 
+alpha = 0.6;
+[phi si_w si_z] = alpha_function(alpha);
+
 x0 = mvnrnd(mu_x0, sigma_x0); %initialize trajectory
 traj(:, 1) = x0'; 
 z_index = randi(5,1); %initial state for z, selected from uniform dist.

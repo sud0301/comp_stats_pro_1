@@ -2,12 +2,31 @@
 %alpha values. To find the optimal parameter using max-likelihood.
 clear all;
 global_var;
+end
+
+x1 = traj(1,:);
+x2 = traj(4,:);
+
+Y =  zeros(7, num_steps);
+obs_mean = zeros(7,num_steps);
+
+%% generate observation for the above generated motion model
+
+for i = 1:num_steps
+    x_gt = repmat ([x1(i), x2(i)], num_stations ,1);
+    norm_diff = sqrt(sum(abs(x_gt-stations').^2,2));
+    obs_mean(:, i) = 90*ones(num_stations,1) - 10*eta*log10(norm_diff);
+    Y(:, i)= obs_mean(:, i) + mvnrnd(mu_noise, std_noise,7,1);   
+end
+
+%load ('RSSI-measurements.mat');  % uncomment to run on given observation data
+%}
 
 load ('RSSI-measurements-unknown-alpha.mat'); %observation data
 liklihood = zeros(10,1);
 
 %% Estimation of trajectory using the given observation
-for iter=1:2
+for iter=1:10
     liklihood_func = zeros(10,1);
     a_i=1;
     for alpha = 0.1:0.1:1
@@ -42,6 +61,6 @@ for iter=1:2
     end
 end
 
-liklihood= liklihood/2; 
+liklihood= liklihood/10; 
 
 plot(liklihood);

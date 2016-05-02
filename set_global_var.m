@@ -6,7 +6,7 @@ function [] = set_global_var(alpha_in)
     z_dist = [0 3.5 0 0 -3.5; 0 0 3.5 -3.5 0];
     P = [16/20 1/20 1/20 1/20 1/20 ;...
          1/20 16/20 1/20 1/20 1/20 ;...
-         1/20 1/20 16/20 1/20 1/20 ;...
+         1/20 1/2   0 16/20 1/20 1/20 ;...
          1/20 1/20 1/20 16/20 1/20 ;...
          1/20 1/20 1/20 1/20 16/20 ] ;
 
@@ -16,6 +16,7 @@ function [] = set_global_var(alpha_in)
 
     si_tz = [delta^2/2 ;  delta ; 0];
     si_tw = [delta^2/2 ;  delta ; 1];
+    
     si_w = [si_tw zeros(3,1); zeros(3,1) si_tw];
     si_z = [si_tz zeros(3,1); zeros(3,1) si_tz];
 
@@ -37,6 +38,6 @@ function [] = set_global_var(alpha_in)
 
     obs_std = eye(7)*1.5^2;
 
-    load('stations.mat');
+    
     %load ('RSSI-measurements.mat');
 end

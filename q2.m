@@ -1,5 +1,8 @@
 clear all;
 global_var;
+alpha = 0.6;
+[phi si_w si_z] = alpha_function(alpha);
+
 
 %% generate sample trajectory using the motion model
 x0 = mvnrnd(mu_x0, sigma_x0); 

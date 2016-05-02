@@ -1,6 +1,9 @@
 clear all;
 global_var;
 
+alpha = 0.6;
+[phi si_w si_z] = alpha_function(alpha);
+
 %{
 %% generate sample trajectory using the motion model
 x0 = mvnrnd(mu_x0, sigma_x0); 
@@ -36,6 +39,7 @@ hold on;
 
 %}
 load ('RSSI-measurements.mat'); %observation data
+%load ('RSSI-measurements-unknown-alpha.mat'); %observation data
 
 %% Estimation of trajectory using the given observation
 tau = zeros(6, num_steps);
@@ -51,7 +55,7 @@ tau(:, 1) = sum_w/sum(w);
 
 tic
 for k = 2:num_steps, 
-    part = generate_x(part); % generates the particles for next step
+    part = generate_x(part,alpha); % generates the particles for next step
     obs_density_mean = generate_y_mean(part);  %generate mean for observation density 
     % estimation of conditional density or w  for all particles (NOT MULTIPLIED BY PREVIOUS WEIGHTS)
     w(:, k) = w_pdf( obs_density_mean', Y(:, k)'); 
@@ -65,13 +69,16 @@ end
 toc   
 
 %% Plot the trajectory compared with ground truth trajectory 
-figure(1)
+fig4 = figure(4);
 plot(tau(1,:), tau(4,:), 'r-');
 hold on;
 plot(stations(1,:), stations(2,:), '*');
-
+title('Obtained trajectory using SISR Algorithm');
+saveas(fig4, 'SISR_trajectory.jpg');
+disp('Press a key !')
+pause;
 %% Plot the histogram of w values
-figure(2)
+fig5=figure(5);
 subplot(5,1,1)       
 histogram(log10(w(:,1)),[-350:10:0])
 title('n = 1')
@@ -91,3 +98,6 @@ title('n = 200')
 subplot(5, 1, 5)       
 histogram(log10(w(:,400)),[-350:10:0])
 title('n = 400')
+saveas(fig5, 'SISR_histograms.jpg');
+disp('Press a key to continue !')
+pause;
